@@ -1,0 +1,104 @@
+#include <IRremote.h>
+const int RECV_PIN=11;
+IRrecv irrecv(RECV_PIN);
+decode_results results;
+unsigned long key_value=0;
+int i=180;//255 is the max speed motor can run at
+
+void setup()
+{
+  Serial.begin(9600);
+  irrecv.enableIRIn();
+  irrecv.blink13(true);
+  pinMode(3,OUTPUT);
+  pinMode(4,OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(6,OUTPUT);
+  pinMode(7,OUTPUT);
+  pinMode(9,OUTPUT);
+  analogWrite(9,180);//initial speed of motor
+}
+ 
+void loop()
+{
+  if(irrecv.decode(&results))
+  {
+    if(results.value==0xFFFFFFFF)
+      results.value=key_value;
+   
+    switch(results.value)
+    {
+      case 0xFD10EF:
+           i=i-10;
+           Serial.println(i);
+           Serial.println("MOTOR speed DECREASED");
+           analogWrite(9,i);
+           break;
+      
+      case 0xFD50AF:
+           i=i+10;
+           Serial.println(i);
+           Serial.println("MOTOR speed INCREASED");
+           analogWrite(9,i);
+           break;
+      
+      case 0xFD30CF:
+       digitalWrite(3,LOW);
+       digitalWrite(4,LOW);
+       digitalWrite(5,LOW);
+       digitalWrite(6,LOW);
+       digitalWrite(7,LOW);
+       analogWrite(9,0);//MOTOR is stopped
+       break;
+      
+      
+      case 0xFD08F7:
+       digitalWrite(3,HIGH);
+       digitalWrite(4,LOW);
+       digitalWrite(5,LOW);
+       digitalWrite(6,LOW);
+       digitalWrite(7,LOW);
+       analogWrite(9,205);
+       break;
+      
+      case 0xFD8877:
+       digitalWrite(3,HIGH);
+       digitalWrite(4,HIGH);
+       digitalWrite(5,LOW);
+       digitalWrite(6,LOW);
+       digitalWrite(7,LOW);
+       analogWrite(9,220);
+       break;
+      
+      case 0xFD48B7:
+       digitalWrite(3,HIGH);
+       digitalWrite(4,HIGH);
+       digitalWrite(5,HIGH);
+       digitalWrite(6,LOW);
+       digitalWrite(7,LOW);
+       analogWrite(9,230);
+       break;
+      
+      case 0xFD28D7:
+       digitalWrite(3,HIGH);
+       digitalWrite(4,HIGH);
+       digitalWrite(5,HIGH);
+       digitalWrite(6,HIGH);
+       digitalWrite(7,LOW);
+       analogWrite(9,240);
+       break;
+      
+      case 0xFDA857:
+       digitalWrite(3,HIGH);
+       digitalWrite(4,HIGH);
+       digitalWrite(5,HIGH);
+       digitalWrite(6,HIGH);
+       digitalWrite(7,HIGH);
+       analogWrite(9,255);
+       break;
+    }
+    results.value=key_value;
+    irrecv.resume();
+  }
+}
+  
